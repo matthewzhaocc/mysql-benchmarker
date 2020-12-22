@@ -3,29 +3,47 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
 	"os"
 
 	"database/sql"
-    _ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 /*
-	the startup script
+	the connection script
 */
-func main() {
+func ConnTest(ConnURL string) int{
 	total := 0
 	for {
 		total += 1
-		fmt.Println(total)
 		db, err := sql.Open("mysql", os.Getenv("SQL_CONN_STRING"))
 		_, err2 := db.Query("SELECT * FROM test;")
 		if err != nil {
 			fmt.Println(err)
-			return
+			return total
 		}
 		if err2 != nil {
 			fmt.Println(err2)
-			return
+			return total
 		}
 	}
+}
+
+/*
+	HTTP handler
+*/
+func RequestCounter(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	SqlString := r.FormValue("sqlconnstring")
+	fmt.Fprintf(w, strconv.Itoa(ConnTest(SqlString)))
+}
+
+/*
+	start the webapp
+*/
+func main() {
+	http.HandleFunc("/", RequestCounter)
+	http.ListenAndServe(":6443", nil)	
 }
