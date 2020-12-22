@@ -18,7 +18,7 @@ func ConnTest(ConnURL string) int{
 	total := 0
 	for {
 		total += 1
-		db, err := sql.Open("mysql", os.Getenv("SQL_CONN_STRING"))
+		db, err := sql.Open("mysql", ConnURL)
 		_, err2 := db.Query("SELECT * FROM test;")
 		if err != nil {
 			fmt.Println(err)
